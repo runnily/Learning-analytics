@@ -1,14 +1,14 @@
 version: 0.10.2
 data_loading: TRUE
 data_loading_header: TRUE
-data_ignore:
+data_ignore: TRUE
 cache_loading: TRUE
 recursive_loading: FALSE
 munging: TRUE
 logging: FALSE
 logging_level: INFO
-load_libraries: FALSE
-libraries: reshape2, plyr, tidyverse, stringr, lubridate
+load_libraries: TRUE
+libraries: reshape2, plyr, tidyverse, stringr, lubridate, ggplot2, dplyr, hash
 as_factors: FALSE
 tables_type: tibble
 attach_internal_libraries: FALSE

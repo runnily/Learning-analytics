@@ -10,10 +10,34 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir= normalizePath('..'))
 ```
 
-```{r ProjectTemplate, include=FALSE}
+
+
+
+## We first analyse the total number of demographics for the full course
+## Measure the demographics between female and male
+```{r projectTemplate, include=FALSE}
 library(ProjectTemplate)
 load.project()
 ```
+
+```{r, echo=FALSE}
+ggplot(data=numberOfTypes(total_enrollments,age_range), aes(x=age_range, y=n)) + geom_bar(stat="identity")
+```
+
+
+```{r, echo=FALSE}
+ggplot(data=numberOfTypes(total_enrollments,gender), aes(x=gender, y=n)) + geom_bar(stat="identity")
+```
+
+```{r, echo=FALSE}
+ggplot(data=numberOfTypes(total_enrollments,region), aes(x=region, y=n)) + geom_bar(stat="identity")
+```
+
+
+```{r, echo=FALSE}
+ggplot(data=numberOfTypes(total_enrollments,highest_education_level), aes(x=highest_education_level, y=n)) + geom_bar(stat="identity")
+```
+
 
 
 ## R Markdown
