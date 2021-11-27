@@ -68,6 +68,14 @@ translateCodeToCnt = function(srows) {
   return(srows)
 }
 
+measureEngagement = function(df, by = 1) {
+  if (by == 1) {
+    return(df %>% group_by(type) %>% summarise(mean = mean(mean_num_quizes_weekly)))
+  } else {
+    return(df %>% group_by(type) %>% summarise(mean = mean(mean_num_activties_weekly)))
+  }
+}
+
 measurePerformance = function(df) {
   #' This is going to be used to measure the performance 
   #' of an individual
@@ -77,6 +85,31 @@ measurePerformance = function(df) {
 caculateAveragePerformance = function(df, type) {
   return(df %>% group_by(type) %>% summarise(mean = mean(mean)))
 }
+
+numberOfActivtiesCompletedWeekly = function(df) {
+  df = df %>% filter(last_completed_at != "")
+  return(df %>% group_by(learner_id, week_number) %>% summarize(num_of_activties_completed = length(last_completed_at)))
+}
+
+avgNumberOfActivtiesCompletedWeekly= function(df) {
+  #' Provides the number of activities completed
+  #' by a student
+  df = numberOfActivtiesCompletedWeekly(df)
+  df = df %>% group_by(learner_id) %>% summarise(mean_num_activties_weekly = mean(num_of_activties_completed ))
+  return(df)
+}
+
+numberOfQuizCompletedWeekly = function(df) {
+  return(df  %>% group_by(learner_id, week_number) %>% summarize(num_quizes_done = length(quiz_question)))
+}
+
+avgNumberOfQuizCompletedWeekly = function(df) {
+  #' Provides the number of quizzes done
+  df = numberOfQuizCompletedWeekly(df)
+  df = df %>% group_by(learner_id) %>% summarise(mean_num_quizes_weekly = mean(num_quizes_done))
+  return(df)
+}
+
 
 plotAvgPerformance = function(types) {
   #' This will be used for plotting 

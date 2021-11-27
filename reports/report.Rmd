@@ -49,6 +49,75 @@ plotPerformanceDist("employment_status", nrow = 1, ncol = 1, overall = TRUE)
 ```{r, echo=FALSE}
 ggplot(na.omit(performanceVsActivity(total_activties)), aes(y=performance, x=num_of_activties_completed)) + geom_point() + geom_smooth(method = "lm")
 ```
+## Student engagement
+This is looking at student engagement across different demographics. The student engagement is defined by the average number of quizzes attempted in a week and the average number of step activities completed in a week. 
+
+```{r, echo=FALSE}
+df = measureEngagement(typeOfUser(avgNumberOfQuizCompletedWeekly(
+total_quizes), "age_range"))
+df_1 = measureEngagement(typeOfUser(avgNumberOfActivtiesCompletedWeekly(
+total_activties), "age_range"), by = 2)
+df$group = "quizes done"
+df_1$group = "activties completed"
+df = rbind(df, df_1)
+
+p = ggplot(df, aes(x = mean, y=type, fill=group)) + 
+   geom_bar(stat="identity", position=position_dodge())
+p = p + scale_fill_brewer(palette="Paired") + theme_minimal()
+
+df = measureEngagement(typeOfUser(avgNumberOfQuizCompletedWeekly(
+total_quizes), "employment_status"))
+df_1 = measureEngagement(typeOfUser(avgNumberOfActivtiesCompletedWeekly(
+total_activties), "employment_status"), by = 2)
+df$group = "quizes done"
+df_1$group = "activties completed"
+df = rbind(df, df_1)
+p_1 = ggplot(df, aes(x = mean, y=type, fill=group)) + 
+   geom_bar(stat="identity", position=position_dodge())
+p_1 = p_1 + scale_fill_brewer(palette="Paired") + theme_minimal()
+grid.arrange(p, p_1)
+```
+
+```{r, echo=FALSE}
+df = measureEngagement(typeOfUser(avgNumberOfQuizCompletedWeekly(
+total_quizes), "gender"))
+df_1 = measureEngagement(typeOfUser(avgNumberOfActivtiesCompletedWeekly(
+total_activties), "gender"), by = 2)
+df$group = "quizes done"
+df_1$group = "activties completed"
+df = rbind(df, df_1)
+
+p = ggplot(df, aes(x = mean, y=type, fill=group)) + 
+   geom_bar(stat="identity", position=position_dodge())
+p = p + scale_fill_brewer(palette="Paired") + theme_minimal()
+
+df = measureEngagement(typeOfUser(avgNumberOfQuizCompletedWeekly(
+total_quizes), "highest_education_level"))
+df_1 = measureEngagement(typeOfUser(avgNumberOfActivtiesCompletedWeekly(
+total_activties), "highest_education_level"), by = 2)
+df$group = "quizes done"
+df_1$group = "activties completed"
+df = rbind(df, df_1)
+p_1 = ggplot(df, aes(x = mean, y=type, fill=group)) + 
+   geom_bar(stat="identity", position=position_dodge())
+p_1 = p_1 + scale_fill_brewer(palette="Paired") + theme_minimal()
+grid.arrange(p, p_1)
+```
+
+```{r, echo=FALSE}
+df = measureEngagement(typeOfUser(avgNumberOfQuizCompletedWeekly(
+total_quizes), "region"))
+df_1 = measureEngagement(typeOfUser(avgNumberOfActivtiesCompletedWeekly(
+total_activties), "region"), by = 2)
+df$group = "quizes done"
+df_1$group = "activties completed"
+df = rbind(df, df_1)
+
+p = ggplot(df, aes(x = mean, y=type, fill=group)) + 
+   geom_bar(stat="identity", position=position_dodge())
+p = p + scale_fill_brewer(palette="Paired") + theme_minimal()
+grid.arrange(p)
+```
 
 ## R Markdown
 
