@@ -11,34 +11,44 @@ knitr::opts_knit$set(root.dir= normalizePath('..'))
 ```
 
 
-
-
+## we compare performance and the number of weekly activties they submitted.
+## compare the performance between the number of weekly participationg
 ## We first analyse the total number of demographics for the full course
 ## Measure the demographics between female and male
 ```{r projectTemplate, include=FALSE}
 library(ProjectTemplate)
 load.project()
+require(gridExtra)
 ```
 
 ```{r, echo=FALSE}
-ggplot(data=numberOfTypes(total_enrollments,age_range), aes(x=age_range, y=n)) + geom_bar(stat="identity")
-```
-
-
-```{r, echo=FALSE}
-ggplot(data=numberOfTypes(total_enrollments,gender), aes(x=gender, y=n)) + geom_bar(stat="identity")
-```
-
-```{r, echo=FALSE}
-ggplot(data=numberOfTypes(total_enrollments,region), aes(x=region, y=n)) + geom_bar(stat="identity")
+df_1 = ggplot(data=numberOfTypes(total_enrollments,age_range), aes(y=age_range, x=n, fill = age_range)) + geom_bar(stat="identity") + scale_colour_brewer("Diamond\nclarity")
+df_2 = ggplot(data=numberOfTypes(total_enrollments,gender), aes(x=gender, y=n)) + geom_bar(stat="identity", fill = "blue")
+df_3 = ggplot(data=numberOfTypes(total_enrollments,region), aes(x=region, y=n)) + geom_bar(stat="identity", fill = "blue")
+df_4 = ggplot(data=numberOfTypes(total_enrollments,highest_education_level), aes(y=highest_education_level, x=n)) + geom_bar(stat="identity", fill = "blue")
+grid.arrange(df_1, df_2, df_3, df_4, ncol = 2, nrow = 2)
 ```
 
 
 ```{r, echo=FALSE}
-ggplot(data=numberOfTypes(total_enrollments,highest_education_level), aes(x=highest_education_level, y=n)) + geom_bar(stat="identity")
+types = c("gender", "region","age_range")
+grid.arrange(grobs = plotAvgPerformance(types))
+
+types = c("highest_education_level","employment_status")
+grid.arrange(grobs = plotAvgPerformance(types))
 ```
 
+```{r, echo=FALSE}
+plotPerformanceDist("gender", nrow = 1, ncol = 1, overall = TRUE)
+plotPerformanceDist("region", nrow = 1, ncol = 1, overall = TRUE)
+plotPerformanceDist("age_range", nrow = 1, ncol = 1, overall = TRUE)
+plotPerformanceDist("highest_education_level", nrow = 1, ncol = 1, overall = TRUE)
+plotPerformanceDist("employment_status", nrow = 1, ncol = 1, overall = TRUE)
+```
 
+```{r, echo=FALSE}
+ggplot(na.omit(performanceVsActivity(total_activties)), aes(y=performance, x=num_of_activties_completed)) + geom_point() + geom_smooth(method = "lm")
+```
 
 ## R Markdown
 
