@@ -110,6 +110,21 @@ avgNumberOfQuizCompletedWeekly = function(df) {
   return(df)
 }
 
+caculateVideoStats = function(df, col_num) {
+  df_1 = data.frame()
+  for (i in seq(1:nrow(df))) {
+    row = df[i,]
+    row$europe_percentages = (((row$europe_views_percentage / 100) * row[col_num]) / ((row$europe_views_percentage / 100) * row$total_views)) * 100
+    row$oceania_percentages= (((row$oceania_views_percentage / 100) * row[col_num]) / ((row$oceania_views_percentage / 100) * row$total_views)) * 100
+    row$asia_percentages = (((row$asia_views_percentage / 100) * row[col_num]) / ((row$asia_views_percentage / 100) * row$total_views)) * 100
+    row$africa_percentages = (((row$africa_views_percentage / 100) * row[col_num]) / ((row$africa_views_percentage / 100) * row$total_views)) * 100
+    row$north_percentages = (((row$north_america_views_percentage / 100) * row[col_num]) / ((row$north_america_views_percentage / 100) * row$total_views)) * 100
+    row$south_percentages = (((row$south_america_views_percentage / 100) * row[col_num]) / ((row$south_america_views_percentage / 100) * row$total_views)) * 100
+      
+    df_1 = rbind(df_1, row)
+  }
+  return(df_1[c(1,2, col_num, ncol(df):ncol(df_1))])
+}
 
 plotAvgPerformance = function(types) {
   #' This will be used for plotting 
