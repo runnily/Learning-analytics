@@ -1,8 +1,15 @@
 ---
-title: "analysis report"
-author: "Adanna"
+title: "Learning analysis: Exploring the interactions and demographics between different demographics"
+author: "Adanna V. Obibuaku"
 date: "21/11/2021"
-output: pdf_document
+output: 
+  pdf_document:
+    fig_caption: true
+fontfamily: mathpazo
+fontsize: 12pt
+geometry: margin=1in
+header-includes:
+   - \linespread{1.05}
 ---
 
 ```{r setup, include=FALSE}
@@ -10,51 +17,106 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir= normalizePath('..'))
 ```
 
-
-## we compare performance and the number of weekly activties they submitted.
-## compare the performance between the number of weekly participationg
-## We first analyse the total number of demographics for the full course
-## Measure the demographics between female and male
 ```{r projectTemplate, include=FALSE}
 library(ProjectTemplate)
 load.project()
 require(gridExtra)
 ```
+# Indroduction
+This report focuses on the interactions and performance of an online course called "Cyber Security: Safety at Home, online and  in Life" between different demographics. The demographics we will be focusing on includes:
+1. Age range
+2. Employment status
+3. Region
+4. Gender
+5. Highest education level.
+The report looks closely at the amount of users learning the course, the engagement and performance within different demographics. Additionally, it explores reasons for the variety within different interactions and performance in demographics. The report will then build two models
+1. Focuses the performance of a demographics between the following years. This is used to monitor performances between different demographics; where forecast is lows, work on different resources and methods to increase the performance increase performance.
+2. Predicts the performance of a user: this will used to identify a pupil who is at risk
 
-```{r, echo=FALSE}
-df_1 = ggplot(data=numberOfTypes(total_enrollments,age_range), aes(y=age_range, x=n, fill = age_range)) + geom_bar(stat="identity") + scale_colour_brewer("Diamond\nclarity")
-df_2 = ggplot(data=numberOfTypes(total_enrollments,gender), aes(x=gender, y=n)) + geom_bar(stat="identity", fill = "blue")
-df_3 = ggplot(data=numberOfTypes(total_enrollments,region), aes(x=region, y=n)) + geom_bar(stat="identity", fill = "blue")
-df_4 = ggplot(data=numberOfTypes(total_enrollments,highest_education_level), aes(y=highest_education_level, x=n)) + geom_bar(stat="identity", fill = "blue")
-grid.arrange(df_1, df_2, df_3, df_4, ncol = 2, nrow = 2)
+# Background
+The data is collected by the future learn where the online course is hosted. It consists of 7 different run of the online course produced between the years 2016 - 2018.
+
+# Monitoring attendance between different demographics
+Here we are looking at the amount of people enrolled within the online course, between different demographics.
+
+```{r, figs, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs}plotting example"}
+df_1 = ggplot(data=numberOfTypes(total_enrollments,age_range), aes(y =  age_range, x = n, fill = age_range)) + geom_bar(stat="identity") + scale_colour_brewer("Diamond\nclarity") + labs(x ="Amount of people")
+df_2 = ggplot(data=numberOfTypes(total_enrollments,gender), aes(x=gender, y=n)) + geom_bar(stat="identity", fill = "blue") + labs(y ="Amount of people")
+df_3 = ggplot(data=numberOfTypes(total_enrollments,region), aes(x=region, y=n)) + geom_bar(stat="identity", fill = "blue") + labs(y ="Amount of people")
+df_4 = ggplot(data=numberOfTypes(total_enrollments,highest_education_level), aes(y=highest_education_level, x=n)) + geom_bar(stat="identity", fill = "blue") + labs(x ="Amount of people")
+df_5 = ggplot(data=numberOfTypes(total_enrollments,employment_status), aes(y=employment_status, x=n)) + geom_bar(stat="identity", fill = "blue") + labs(x ="employment_status")
+grid.arrange(df_1, df_2, df_3, df_4, df_5, ncol = 2, nrow = 3)
 ```
 
+This graphs is a summary of the total 7 different runs of the course. From the data it is found the highest number of pupils enrolled in the online course are aged 26-35. While, the lowest people less than 18. More male pupils are enrolled in the course more than female. Approximately 2000 males and 1750 females enrolled. In terms of locations, Europe has the highest number of pupils, the second highest being pupils from Asia. Lowest, is Oceania. Pupils from enrolled in this course, mostly have at least a university degree and are working full time.
+
+Overall, the data illustrates that a significant amount of people who choose to enroll in this course appears to be between the ages 26-35, working full time with a high university degree from Europe.
+
+# Monitoring performance between different demographics
+
+## Illustration of the performance across each run of the module
+
+The graph is an illustration of the demographics of pupils performance across different runs of the online course.
 
 ```{r, echo=FALSE}
 types = c("gender", "region","age_range")
 grid.arrange(grobs = plotAvgPerformance(types))
+```
 
+It appears that females pupils performed better than male pupils on runs 2, 4, 5 and 7. Male pupils performed better on runs 1, 3 and 6. Pupils who identify as non-binary tend to perform better than male and female pupils. However, there the population of non binary pupils within the data, is sufficient enough to support this claim.
+
+Pupils from countries in European and Oceania performed better than pupils from countries Asia, Africa and Americas. European pupils appears to consistently the same across the 7 runs of online course, while Oceania significantly performed better than all the other regions on run 4 of the course.
+
+Those who are under 18 appear to significantly perform the best. However given that population of pupils under 18 within the data is small, this claim is not supported. Therefore, we disregard the data. Pupils aged 56-65 and 65> tend to perform better.
+
+```{r, echo=FALSE}
 types = c("highest_education_level","employment_status")
 grid.arrange(grobs = plotAvgPerformance(types))
 ```
 
-```{r, echo=FALSE}
-plotPerformanceDist("gender", nrow = 1, ncol = 1, overall = TRUE)
-plotPerformanceDist("region", nrow = 1, ncol = 1, overall = TRUE)
-plotPerformanceDist("age_range", nrow = 1, ncol = 1, overall = TRUE)
-plotPerformanceDist("highest_education_level", nrow = 1, ncol = 1, overall = TRUE)
-plotPerformanceDist("employment_status", nrow = 1, ncol = 1, overall = TRUE)
-```
+There is no significant distinction in who performs between pupils with different forms of highest education. However, those with a highest form of education being a university degree appear to perform consistently through each run.
+
+Across each run, there does not appear a significant distinction in performance between pupils with different employment status. However, pupils who are retired perform at a consistent rate through each run of the course.
+
+## Illustration from the total run
+This summaries data from the different runs of the online course, to compare the average and distribution of different demographics performance.
 
 ```{r, echo=FALSE}
-ggplot(na.omit(performanceVsActivity(total_activties)), aes(y=performance, x=num_of_activties_completed)) + geom_point() + geom_smooth(method = "lm")
+p = plotPerformanceDist("gender")
+p_1 = plotPerformanceDist("region")
+grid.arrange(p, p_1)
 ```
-## Student engagement
-This is looking at student engagement across different demographics. The student engagement is defined by the average number of quizzes attempted in a week and the average number of step activities completed in a week. 
+
+There is more variance in the gender of male students than they are for female students. The mean of male and females students are approximately the same.
+
+Pupils from Europe have a higher mean than pupils from other region. Additionally the data suggest that pupils from Europe are suited at the higher end of performance.
+
+```{r, echo=FALSE}
+p = plotPerformanceDist("age_range")
+p_1 = plotPerformanceDist("highest_education_level")
+grid.arrange(p, p_1)
+```
+
+As mentioned before, there is not enough pupils that are less than 18 to precisely define them. Therefore, this information is disregarded. However, from the data it shows that pupils who are more than 65 have a average higher performance. The second highest average performance are those who are between ages (56-65). Furthermore, pupils who are more than 65 have a low IQR, suggesting that the scores between each individual is similar/consistent. Pupils who are ages between 18 and 25 have a lower performance average. The graph, illustrates that the distribution of pupils aged 18-25 are situated at the lower end the average performance.
+
+The pupils with the highest education level being an apprenticeship have the highest average performance. However, as the data from those who have an apprenticeship is not enough to accurately represent the population, the data is disregarded. Pupils with a university have the highest average performance, while the second highest average performance comes from pupils with a tertiary background. Pupils who have obtained a secondary schooling at a highest level education have an low average performance.
+
+```{r, echo=FALSE}
+plotPerformanceDist("employment_status")
+```
+
+Pupils working full time have the highest average performance. This is followed by pupils who have retired. The distribution of people who have retired have a small IQR. This suggest that the performance obtained by each individual is fairly similar. Pupils who are full time students have a low average performance. Additionally the distribution of fill time students is situated
+at the lower end of the average performance.
+
+# Student engagement
+
+There is no clear strong pattern between the number of activities completed. However there it shows a slight negative correlation between the number of activities and the performance of each student.
+
+This is looking at student engagement across different demographics. Student engagement is measured by the average number of quizzes completed in a week and the average number of activities completed in a week. 
 
 ```{r, echo=FALSE}
 df = measureEngagement(typeOfUser(avgNumberOfQuizCompletedWeekly(
-total_quizes), "age_range"))
+total_quizes), "age_range")) 
 df_1 = measureEngagement(typeOfUser(avgNumberOfActivtiesCompletedWeekly(
 total_activties), "age_range"), by = 2)
 df$group = "quizes done"
@@ -62,7 +124,7 @@ df_1$group = "activties completed"
 df = rbind(df, df_1)
 
 p = ggplot(df, aes(x = mean, y=type, fill=group)) + 
-   geom_bar(stat="identity", position=position_dodge())
+   geom_bar(stat="identity", position=position_dodge()) + labs(y = "age_range")
 p = p + scale_fill_brewer(palette="Paired") + theme_minimal()
 
 df = measureEngagement(typeOfUser(avgNumberOfQuizCompletedWeekly(
@@ -73,10 +135,14 @@ df$group = "quizes done"
 df_1$group = "activties completed"
 df = rbind(df, df_1)
 p_1 = ggplot(df, aes(x = mean, y=type, fill=group)) + 
-   geom_bar(stat="identity", position=position_dodge())
+   geom_bar(stat="identity", position=position_dodge()) + labs(y = "employment_status")
 p_1 = p_1 + scale_fill_brewer(palette="Paired") + theme_minimal()
 grid.arrange(p, p_1)
 ```
+
+It appears that pupils ages 65 have the highest number of activities completed. The second highest is those who are aged 56-65. The lowest number of activities is completed is by pupils aged 18-25. Second lowest being pupils from age 26-35. Those who perform the highest number of quizzes per week are those aged 26-35. Those who perform the lowest number of quizzes per week are those aged 56-65.
+
+Those who have retired have a higher number of number of activities completed on average. The second highest is those who are not working. Those who are retired complete the lowest amount of quizzes per week, while full time student complete the highest number of quizes per week.
 
 ```{r, echo=FALSE}
 df = measureEngagement(typeOfUser(avgNumberOfQuizCompletedWeekly(
@@ -88,7 +154,7 @@ df_1$group = "activties completed"
 df = rbind(df, df_1)
 
 p = ggplot(df, aes(x = mean, y=type, fill=group)) + 
-   geom_bar(stat="identity", position=position_dodge())
+   geom_bar(stat="identity", position=position_dodge()) + labs(y = "gender")
 p = p + scale_fill_brewer(palette="Paired") + theme_minimal()
 
 df = measureEngagement(typeOfUser(avgNumberOfQuizCompletedWeekly(
@@ -98,11 +164,16 @@ total_activties), "highest_education_level"), by = 2)
 df$group = "quizes done"
 df_1$group = "activties completed"
 df = rbind(df, df_1)
-p_1 = ggplot(df, aes(x = mean, y=type, fill=group)) + 
-   geom_bar(stat="identity", position=position_dodge())
+p_1 = ggplot(df, aes(x = mean, y=type, fill=group)) +
+   geom_bar(stat="identity", position=position_dodge()) + labs(y = "highest_education_level") 
 p_1 = p_1 + scale_fill_brewer(palette="Paired") + theme_minimal()
 grid.arrange(p, p_1)
 ```
+
+Pupils who are either non-binary complete the highest number of activities and lowest number of activities. However since the sample size from this population is small, the results are inconclusive. This hold true for pupils who identify as "other". Female pupils tend to have complete more activities in a week than Male pupils. The data further illustrates the female pupils complete less quizzes in a week than male pupils.
+
+Pupils who have an apprenticeship tend to complete more activities and less quizzes than all the different demographics of higher education. However, given that the sample of the population collected for pupils in apprenticeships is small. This data is disregarded. Therefore, pupils who have a university doctorate degree have the highest number of activities completed in a week The second highest are Pupils who are professionals. However, professional pupils complete a lowest number of quizzes in a week.
+
 
 ```{r, echo=FALSE}
 df = measureEngagement(typeOfUser(avgNumberOfQuizCompletedWeekly(
@@ -114,10 +185,81 @@ df_1$group = "activties completed"
 df = rbind(df, df_1)
 
 p = ggplot(df, aes(x = mean, y=type, fill=group)) + 
-   geom_bar(stat="identity", position=position_dodge())
+   geom_bar(stat="identity", position=position_dodge()) + labs(y = "region")
 p = p + scale_fill_brewer(palette="Paired") + theme_minimal()
 grid.arrange(p)
 ```
+
+Pupils from countries in Oceania complete the highest number of activities a week. The lowest number of activities completed are pupils from countries in Africa. Pupils with the lowest number of quizzes completed are from countries in Europe. Pupils with the highest number of quizzes are from countries in Africa
+
+# Conclusions and Reasioning
+The people who had a better higher performance included:
+- Pupils aged 56-65 and 65 tend to perform better. 
+- Those who are retired and or working full time perform better
+- Full time students perform the lowest
+- Pupils with university degree perform better
+- Pupils from oceania
+
+Generally it was observed that a pupil will complete more quizzes per week have a lower performance. This is because pupil attempts in multiple combination until an answer is correct. This suggest that they may have not gained the right understanding. Additionally, the it's observed that the number of activities completed and performance has less of a negative relationship than number of quizzes completed per week and performance. Perhaps this is indication why some demographics (>65) had a higher performing (as they took much less attempts to answer questions) and activities. Activities take more effort than quizzes, as involves self research to find an answer. That indicates those who are more engaged take more activities, thus gaining a better understand and a higher performance in quizzes (less reattempts). 
+
+Full time students had a lower performance and completed more quizzes than any pupils with different employment status. This holds true for pupils with the age range 18-25. Retired people tend to perform better among est those with different employment status. The data also suggest that pupils >65 perform the best. Therefore, it is reasonable to suggest that full time students tends to be those 18-25 are less engaged because as they are completing other studies. 
+
+
+```{r, echo=FALSE}
+p = ggplot(na.omit(performanceVsDf(avgNumberOfActivtiesCompletedWeekly(total_activties))), aes(x=performance, y=mean_num_activties_weekly, )) + geom_point(alpha=0.1) + stat_smooth(method=lm)
+p_1 = ggplot(na.omit(performanceVsDf(avgNumberOfQuizCompletedWeekly(total_quizes))), aes(x=performance, y=mean_num_quizes_weekly)) + geom_point(alpha=0.1) + ylim(0,50) + stat_smooth(method=lm)
+grid.arrange(p, p_1, ncol = 2, nrow = 1)
+```
+
+# Models
+
+We are going to be looking at implementing two models 
+1. Predicts the number performance by each student
+2. Uses data to estimate the performance of a student
+3. Identify any at risk Students
+
+```{r, echo=FALSE}
+set.seed(777)
+sample_size = floor(0.8*nrow(total_enrollements_model_data))
+picked = sample(1:nrow(total_enrollements_model_data),size = sample_size)
+train_set = total_enrollements_model_data[picked,]
+test_set  = total_enrollements_model_data[-picked,]
+lsq_fit = lm(performance~., data = train_set)
+summary = summary(lsq_fit)
+summary$coefficients
+train_yhat = predict(lsq_fit, train_set[-7])
+test_yhat = predict(lsq_fit, test_set[-7])
+test_error = mean((test_set$performance - test_yhat)^2)
+train_error = mean((train_set$performance - train_yhat)^2)
+plot(lsq_fit, which = 1)
+
+test_error 
+test_error
+```
+
+There is only 7 observation for all runs. Therefore had to predict more data to come., and with a (possible) low signal-to-noise ratio it will be hard to extract any possible trend, persistence, lagged errors etc. Also it is impossible to capture seasonality related to cycles with higher periods (like annual seasonality), when you only have such a short observed series.
+
+```{r, echo=FALSE}
+forecast_oceania = forecast(arima((avgPerformance("region") %>% filter(type == "Oceania"))[["mean"]]), 2)
+df = data.frame(runs = c("run 8"), performance = c(forecast_oceania$mean[1]), region = "Oceania")
+
+forecast_europe = forecast(arima((avgPerformance("region") %>% filter(type == "Europe"))[["mean"]]), 2)
+df_1 = data.frame(runs = c("run 8"), performance = c(forecast_europe$mean[1]), region = "Europe")
+
+forecast_americas = forecast(arima((avgPerformance("region") %>% filter(type == "Americas"))[["mean"]]), 2)
+df_2 = data.frame(runs = c("run 8"), performance = c(forecast_americas$mean[1]), region = "Americas")
+
+forecast_asia = forecast(arima((avgPerformance("region") %>% filter(type == "Asia"))[["mean"]]), 2)
+df_3 = data.frame(runs = c("run 8"), performance = c(forecast_asia$mean[1]), region = "Asia")
+
+forecast_africa = forecast(arima((avgPerformance("region") %>% filter(type == "Africa"))[["mean"]]), 2)
+df_4 = data.frame(runs = c("run 8"), performance =  c(forecast_africa$mean[1]), region = "Africa")
+
+df = rbind(df, df_1, df_2, df_3, df_4)
+ggplot(df, aes(x=region, y=performance, col=region, fill=region)) + geom_point() + geom_line(group = 1)
+```
+
+
 
 ## R Markdown
 

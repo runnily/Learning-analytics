@@ -31,31 +31,10 @@ typeOfUser = function(df, type) {
   return(df)
 }
 
-performanceVsActivity = function(activityDf) {
-  
-  ## 1. calculate performance for all users
-  
-  questionDf = rbind(cyber.security.1_question.response, cyber.security.2_question.response, 
-                     cyber.security.3_question.response, cyber.security.4_question.response, 
-                     cyber.security.5_question.response, cyber.security.6_question.response,
-                     cyber.security.7_question.response)
-  questionDf = measurePerformance(questionDf)
-  questionDf = data.frame(row.names = questionDf$learner_id, val = questionDf$mean)
-  
-  ## 2. calculate the number of activities completed
-  
-  ## filter out where the column last completed at has no data
-  activityDf = activityDf %>% filter(last_completed_at != "")
-  
-  ## counts how many are completed
-  activityDf = activityDf %>% group_by(learner_id) %>% summarize(num_of_activties_completed = length(last_completed_at))
-  df = data.frame(learner_id = activityDf$learner_id)
-  
-  ## focus only on the the number of activities completed
-  activityDf = data.frame(row.names = activityDf$learner_id, val = activityDf$num_of_activties_completed)
-  
-  df$performance = questionDf[df$learner_id,] # provides mean
-  df$num_of_activties_completed = activityDf[df$learner_id,] # provides activities completed
+performanceVsDf  = function(df) {
+  performance = measurePerformance(total_quizes)
+  performance = data.frame(row.names = performance$learner_id, vals = performance$mean)
+  df$performance = performance[df$learner_id,]
   return(df)
 }
 
@@ -88,7 +67,7 @@ caculateAveragePerformance = function(df, type) {
 
 numberOfActivtiesCompletedWeekly = function(df) {
   df = df %>% filter(last_completed_at != "")
-  return(df %>% group_by(learner_id, week_number) %>% summarize(num_of_activties_completed = length(last_completed_at)))
+  return(df %>% group_by(learner_id, week_number) %>% summarize(num_of_activties_completed = length(last_completed_at), .groups = "drop"))
 }
 
 avgNumberOfActivtiesCompletedWeekly= function(df) {
@@ -100,7 +79,7 @@ avgNumberOfActivtiesCompletedWeekly= function(df) {
 }
 
 numberOfQuizCompletedWeekly = function(df) {
-  return(df  %>% group_by(learner_id, week_number) %>% summarize(num_quizes_done = length(quiz_question)))
+  return(df  %>% group_by(learner_id, week_number) %>% summarize(num_quizes_done = length(quiz_question), .groups = "drop"))
 }
 
 avgNumberOfQuizCompletedWeekly = function(df) {
@@ -110,20 +89,75 @@ avgNumberOfQuizCompletedWeekly = function(df) {
   return(df)
 }
 
-caculateVideoStats = function(df, col_num) {
+asDoubleFactor = function(x) {
+  as.numeric(as.factor(x))
+  }
+
+translateVideoStats = function(df, col_num) {
   df_1 = data.frame()
   for (i in seq(1:nrow(df))) {
     row = df[i,]
-    row$europe_percentages = (((row$europe_views_percentage / 100) * row[col_num]) / ((row$europe_views_percentage / 100) * row$total_views)) * 100
-    row$oceania_percentages= (((row$oceania_views_percentage / 100) * row[col_num]) / ((row$oceania_views_percentage / 100) * row$total_views)) * 100
-    row$asia_percentages = (((row$asia_views_percentage / 100) * row[col_num]) / ((row$asia_views_percentage / 100) * row$total_views)) * 100
-    row$africa_percentages = (((row$africa_views_percentage / 100) * row[col_num]) / ((row$africa_views_percentage / 100) * row$total_views)) * 100
-    row$north_percentages = (((row$north_america_views_percentage / 100) * row[col_num]) / ((row$north_america_views_percentage / 100) * row$total_views)) * 100
-    row$south_percentages = (((row$south_america_views_percentage / 100) * row[col_num]) / ((row$south_america_views_percentage / 100) * row$total_views)) * 100
+    row$europe = as.integer((row$europe_views_percentage / 100) * row[col_num])
+    row$oceania = as.integer((row$oceania_views_percentage / 100) * row[col_num])
+    row$asia = as.integer((row$asia_views_percentage / 100) * row[col_num])
+    row$africa = as.integer((row$africa_views_percentage / 100) * row[col_num])
+    row$north_america  = as.integer((row$north_america_views_percentage / 100) * row[col_num])
+    row$south_america  = as.integer((row$south_america_views_percentage / 100) * row[col_num])
       
     df_1 = rbind(df_1, row)
   }
-  return(df_1[c(1,2, col_num, ncol(df):ncol(df_1))])
+  return(df_1)
+}
+
+totalVidStats = function(list) {
+  df = data.frame()
+  for (i in seq(1:length(list))) {
+    current_df = list[[i]] 
+    current_df$group = i
+    df = bind_rows(df, current_df)
+  }
+  
+  df = df %>% group_by(step_position) %>% summarise(total_downloads = mean(total_downloads), total_views = mean(total_views), 
+        total_caption_view = mean(total_caption_views), total_transcript_views = mean(total_transcript_views), 
+        mobile_device_percentage = mean(mobile_device_percentage), desktop_device_percentage = mean(desktop_device_percentage),
+        tablet_device_percentage = mean(tablet_device_percentage),
+        asia = mean(asia), africa= mean(africa),
+        europe = mean(europe), north_america = mean(north_america), 
+        south_america = mean(south_america), oceania= mean(oceania))
+  return(df)
+}
+
+panel.lm <- function (x, y,  pch = par("pch"), col.lm = "red",  ...) {   
+  ymin <- min(y)
+  ymax <- max(y)
+  xmin <- min(x)
+  xmax <- max(x)
+  ylim <- c(min(ymin,xmin),max(ymax,xmax))
+  xlim <- ylim
+  points(x, y, pch = pch,ylim = ylim, xlim= xlim,...)
+  ok <- is.finite(x) & is.finite(y)
+  if (any(ok)) 
+    abline(lm(y[ok]~ x[ok]), 
+           col = col.lm, ...)
+}
+
+avgPerformance = function(type) {
+  avg_performance_1 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.1_question.response), type), type)
+  avg_performance_2 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.2_question.response), type), type)
+  avg_performance_3 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.3_question.response), type), type)
+  avg_performance_4 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.4_question.response), type), type)
+  avg_performance_5 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.5_question.response), type), type)
+  avg_performance_6 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.3_question.response), type), type)
+  avg_performance_7 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.7_question.response), type), type)
+  avg_performance_1$group = "run 1"
+  avg_performance_2$group = "run 2"
+  avg_performance_3$group = "run 3"
+  avg_performance_4$group = "run 4"
+  avg_performance_5$group = "run 5"
+  avg_performance_6$group = "run 6"
+  avg_performance_7$group = "run 7"
+  avg_performance = rbind(avg_performance_1, avg_performance_2, avg_performance_3, avg_performance_4, avg_performance_5,avg_performance_6, avg_performance_7)
+  return(avg_performance)
 }
 
 plotAvgPerformance = function(types) {
@@ -132,50 +166,22 @@ plotAvgPerformance = function(types) {
   graphs = list()
   for (i in seq(1:length(types))) {
     type = types[i]
-    avg_performance_1 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.1_question.response), type), type)
-    avg_performance_2 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.2_question.response), type), type)
-    avg_performance_3 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.3_question.response), type), type)
-    avg_performance_4 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.4_question.response), type), type)
-    avg_performance_5 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.5_question.response), type), type)
-    avg_performance_6 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.3_question.response), type), type)
-    avg_performance_7 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.7_question.response), type), type)
-    avg_performance_1$group = "run 1"
-    avg_performance_2$group = "run 2"
-    avg_performance_3$group = "run 3"
-    avg_performance_4$group = "run 4"
-    avg_performance_5$group = "run 5"
-    avg_performance_6$group = "run 6"
-    avg_performance_7$group = "run 7"
-    avg_performance = rbind(avg_performance_1, avg_performance_2, avg_performance_3, avg_performance_4, avg_performance_5,avg_performance_6, avg_performance_7)
+    avg_performance = avgPerformance(type)
     graphs[[i]] = ggplot(avg_performance, aes(x=group, y=mean, group=type, col=type, fill=type)) +
       geom_point() + geom_line() + labs(x="runs", y="Performance")
   }
   return(graphs)
 }
 
-plotPerformanceDist = function(type, nrow = 4, ncol = 2, overall = FALSE) {
-  dfs = list()
-  if (overall) {
-    df_1 = rbind(cyber.security.1_question.response, cyber.security.2_question.response, 
-                          cyber.security.3_question.response, cyber.security.4_question.response, 
-                          cyber.security.5_question.response, cyber.security.6_question.response,
-                          cyber.security.7_question.response)
-    df_1 =  typeOfUser(measurePerformance(df_1), type)
-    dfs = list(df_1)
-  } else {
-    df_1 = typeOfUser(measurePerformance(cyber.security.1_question.response), type)
-    df_2 = typeOfUser(measurePerformance(cyber.security.2_question.response), type)
-    df_3 = typeOfUser(measurePerformance(cyber.security.3_question.response), type)
-    df_4 = typeOfUser(measurePerformance(cyber.security.4_question.response), type)
-    df_5 = typeOfUser(measurePerformance(cyber.security.5_question.response), type)
-    df_6 = typeOfUser(measurePerformance(cyber.security.6_question.response), type)
-    df_7 = typeOfUser(measurePerformance(cyber.security.7_question.response), type)
-    dfs = list(df_1, df_2, df_3, df_4, df_5, df_6, df_7)
-  }
-  graphs = list()
-  for (i in seq(1:length(dfs))) {
-    df = dfs[[i]]
-    graphs[[i]] = ggplot(data = df, aes(x = mean, y = type, fill=type)) + geom_boxplot(outlier.colour="red")+geom_jitter(alpha=0.2, color="black")+scale_colour_brewer("Diamond\nclarity")
-  }
-  return(grid.arrange(grobs = graphs, nrow= nrow, ncol = ncol))
+plotPerformanceDist = function(type) {
+  df = rbind(cyber.security.1_question.response, cyber.security.2_question.response, 
+                        cyber.security.3_question.response, cyber.security.4_question.response, 
+                        cyber.security.5_question.response, cyber.security.6_question.response,
+                        cyber.security.7_question.response)
+  df =  typeOfUser(measurePerformance(df), type)
+  return(ggplot(data = df, aes(x = mean, y = type, fill=type)) 
+         + geom_boxplot(outlier.colour="red") + 
+           geom_jitter(alpha=0.1, color="black") + 
+           scale_colour_brewer("Diamond\nclarity") + 
+           labs(x="Avg performance", y=type))
 }
