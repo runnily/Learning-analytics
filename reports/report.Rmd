@@ -22,24 +22,38 @@ library(ProjectTemplate)
 load.project()
 require(gridExtra)
 ```
-# Indroduction
-This report focuses on the interactions and performance of an online course called "Cyber Security: Safety at Home, online and  in Life" between different demographics. The demographics we will be focusing on includes:
-1. Age range
-2. Employment status
-3. Region
-4. Gender
-5. Highest education level.
-The report looks closely at the amount of users learning the course, the engagement and performance within different demographics. Additionally, it explores reasons for the variety within different interactions and performance in demographics. The report will then build two models
-1. Focuses the performance of a demographics between the following years. This is used to monitor performances between different demographics; where forecast is lows, work on different resources and methods to increase the performance increase performance.
-2. Predicts the performance of a user: this will used to identify a pupil who is at risk
 
-# Background
-The data is collected by the future learn where the online course is hosted. It consists of 7 different run of the online course produced between the years 2016 - 2018.
+# 1. Indroduction
 
-# Monitoring attendance between different demographics
-Here we are looking at the amount of people enrolled within the online course, between different demographics.
+## 1.1 Motivation
 
-```{r, figs, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs}plotting example"}
+This report focuses on the interactions and performance of an online course called "Cyber Security: Safety at Home, online and  in Life" between different demographics. The type of demographics this report focuses on includes:
+
+* Age range
+* Employment status
+* Region
+* Gender
+* Highest education level.
+
+The report looks closely the demographics of pupil learning the course, their interactions, engagement and performance Additionally, it explores reasoning behind the performance of each group; trying to identify constraits a demographics may have for engagament or learning the online course. 
+
+The report includes two models:
+
+1. The first model takes uses two data sets; demographics data (age, gender etc). and usuage of data which gives an insight about student engagaments (number of weekly activities/quizes etc), to predict the performance of a user.
+
+2. The second model makes usues of data which provides the average performance of a specfic demographics across different runs of the module to predict the expected performance of a specfic demographics for the next run of the module
+
+## 1.2 Background
+
+The data is collected by the future learn website where the online course is hosted. It consists of 7 different run of the online course produced between the years 2016 - 2018. 
+
+# 2. Methodology
+
+## 2.1 Monitoring attendance between different demographics
+
+Here we are looking at the amount of pupils enrolled within the online course, between different demographics.
+
+```{r, figs, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs}Bar graph illustrating the number of enrollments between different demographics"}
 df_1 = ggplot(data=numberOfTypes(total_enrollments,age_range), aes(y =  age_range, x = n, fill = age_range)) + geom_bar(stat="identity") + scale_colour_brewer("Diamond\nclarity") + labs(x ="Amount of people")
 df_2 = ggplot(data=numberOfTypes(total_enrollments,gender), aes(x=gender, y=n)) + geom_bar(stat="identity", fill = "blue") + labs(y ="Amount of people")
 df_3 = ggplot(data=numberOfTypes(total_enrollments,region), aes(x=region, y=n)) + geom_bar(stat="identity", fill = "blue") + labs(y ="Amount of people")
@@ -48,28 +62,30 @@ df_5 = ggplot(data=numberOfTypes(total_enrollments,employment_status), aes(y=emp
 grid.arrange(df_1, df_2, df_3, df_4, df_5, ncol = 2, nrow = 3)
 ```
 
-This graphs is a summary of the total 7 different runs of the course. From the data it is found the highest number of pupils enrolled in the online course are aged 26-35. While, the lowest people less than 18. More male pupils are enrolled in the course more than female. Approximately 2000 males and 1750 females enrolled. In terms of locations, Europe has the highest number of pupils, the second highest being pupils from Asia. Lowest, is Oceania. Pupils from enrolled in this course, mostly have at least a university degree and are working full time.
+This graphs is a summary of the total 7 different runs of the course.
+
+From the data it is found the highest number of pupils enrolled in the online course are aged 26-35. While, the lowest people less than 18. More male pupils are enrolled in the course more than female. Approximately 2000 males and 1750 females enrolled. In terms of locations, Europe has the highest number of pupils enrolled in this course, the second highest being pupils from Asia. Lowest, is Oceania. Pupils enrolled in this course, mostly have at least a university degree and are working full time.
 
 Overall, the data illustrates that a significant amount of people who choose to enroll in this course appears to be between the ages 26-35, working full time with a high university degree from Europe.
 
-# Monitoring performance between different demographics
+# 2.2 Monitoring performance between different demographics
 
-## Illustration of the performance across each run of the module
+### 2.2.1 Illustration of the performance across each run of the module
 
 The graph is an illustration of the demographics of pupils performance across different runs of the online course.
 
-```{r, echo=FALSE}
+```{r, figs1, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs1}The average performance across different runs of the module compared between different demograpics"}
 types = c("gender", "region","age_range")
 grid.arrange(grobs = plotAvgPerformance(types))
 ```
 
-It appears that females pupils performed better than male pupils on runs 2, 4, 5 and 7. Male pupils performed better on runs 1, 3 and 6. Pupils who identify as non-binary tend to perform better than male and female pupils. However, there the population of non binary pupils within the data, is sufficient enough to support this claim.
+It appears that females pupils performed better than male pupils on runs 2, 4, 5 and 7. Male pupils performed better on runs 1, 3 and 6. Pupils who identify as non-binary tend to perform better than male and female pupils. However, there the population of non binary pupils within the data, is not large enough to support this claim.
 
-Pupils from countries in European and Oceania performed better than pupils from countries Asia, Africa and Americas. European pupils appears to consistently the same across the 7 runs of online course, while Oceania significantly performed better than all the other regions on run 4 of the course.
+Pupils from countries in European and Oceania performed better than pupils from countries Asia, Africa and Americas. European pupils appears to perform consistently the same across the 7 runs of online course, while Oceania significantly performed better than all the other regions on run 4 of the course.
 
-Those who are under 18 appear to significantly perform the best. However given that population of pupils under 18 within the data is small, this claim is not supported. Therefore, we disregard the data. Pupils aged 56-65 and 65> tend to perform better.
+Those who are under 18 appear to significantly perform the best. However given thht the population of pupils under 18 within the data is small, this claim is not supported. Therefore, we disregard this data. Pupils aged 56-65 and 65> tend to perform better.
 
-```{r, echo=FALSE}
+```{r, figs2, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs2}The average performance across different runs of the module compared between different demograpics"}
 types = c("highest_education_level","employment_status")
 grid.arrange(grobs = plotAvgPerformance(types))
 ```
@@ -78,20 +94,21 @@ There is no significant distinction in who performs between pupils with differen
 
 Across each run, there does not appear a significant distinction in performance between pupils with different employment status. However, pupils who are retired perform at a consistent rate through each run of the course.
 
-## Illustration from the total run
+### 2.2.2 Illustration from the total run
+
 This summaries data from the different runs of the online course, to compare the average and distribution of different demographics performance.
 
-```{r, echo=FALSE}
+```{r, figs3, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs3}Boxplots illustrating the distribution of the average performance between different demographics"}
 p = plotPerformanceDist("gender")
 p_1 = plotPerformanceDist("region")
 grid.arrange(p, p_1)
 ```
 
-There is more variance in the gender of male students than they are for female students. The mean of male and females students are approximately the same.
+There is more variance in the gender of male students than they are for female students. Furthermore, The mean of male and females students are approximately the same.
 
-Pupils from Europe have a higher mean than pupils from other region. Additionally the data suggest that pupils from Europe are suited at the higher end of performance.
+Pupils from Europe have a higher mean than pupils from other regions. Additionally the data suggest that pupils from Europe are suited at the higher end of performance.
 
-```{r, echo=FALSE}
+```{r, figs4, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs4}Boxplots illustrating the distribution of the average performance between different demographics"}
 p = plotPerformanceDist("age_range")
 p_1 = plotPerformanceDist("highest_education_level")
 grid.arrange(p, p_1)
@@ -101,20 +118,19 @@ As mentioned before, there is not enough pupils that are less than 18 to precise
 
 The pupils with the highest education level being an apprenticeship have the highest average performance. However, as the data from those who have an apprenticeship is not enough to accurately represent the population, the data is disregarded. Pupils with a university have the highest average performance, while the second highest average performance comes from pupils with a tertiary background. Pupils who have obtained a secondary schooling at a highest level education have an low average performance.
 
-```{r, echo=FALSE}
+```{r, figs5, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs5}Boxplots illustrating the distribution of the average performance between different demographics"}
 plotPerformanceDist("employment_status")
 ```
 
-Pupils working full time have the highest average performance. This is followed by pupils who have retired. The distribution of people who have retired have a small IQR. This suggest that the performance obtained by each individual is fairly similar. Pupils who are full time students have a low average performance. Additionally the distribution of fill time students is situated
-at the lower end of the average performance.
+Pupils working full time have the highest average performance. This is followed by pupils who have retired. The distribution of people who have retired have a small IQR. This suggest that the performance obtained by each individual is fairly similar. Pupils who are full time students have a low average performance. Additionally the distribution of full time students is situated at the lower end of the average performance.
 
-# Student engagement
+# 2.3 Student engagement
 
 There is no clear strong pattern between the number of activities completed. However there it shows a slight negative correlation between the number of activities and the performance of each student.
 
-This is looking at student engagement across different demographics. Student engagement is measured by the average number of quizzes completed in a week and the average number of activities completed in a week. 
+This is looking at student engagement across different demographics. Student engagement is measured by the average number of quizzes completed in a week including the average number of activities completed in a week. 
 
-```{r, echo=FALSE}
+```{r, figs6, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs6}Bar graphs illustrating student engagement measured using number of quizes and number of activites completed."}
 df = measureEngagement(typeOfUser(avgNumberOfQuizCompletedWeekly(
 total_quizes), "age_range")) 
 df_1 = measureEngagement(typeOfUser(avgNumberOfActivtiesCompletedWeekly(
@@ -144,7 +160,7 @@ It appears that pupils ages 65 have the highest number of activities completed. 
 
 Those who have retired have a higher number of number of activities completed on average. The second highest is those who are not working. Those who are retired complete the lowest amount of quizzes per week, while full time student complete the highest number of quizes per week.
 
-```{r, echo=FALSE}
+```{r, figs7, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs7}Bar graphs illustrating student engagement measured using number of quizes and number of activites completed."}
 df = measureEngagement(typeOfUser(avgNumberOfQuizCompletedWeekly(
 total_quizes), "gender"))
 df_1 = measureEngagement(typeOfUser(avgNumberOfActivtiesCompletedWeekly(
@@ -175,7 +191,7 @@ Pupils who are either non-binary complete the highest number of activities and l
 Pupils who have an apprenticeship tend to complete more activities and less quizzes than all the different demographics of higher education. However, given that the sample of the population collected for pupils in apprenticeships is small. This data is disregarded. Therefore, pupils who have a university doctorate degree have the highest number of activities completed in a week The second highest are Pupils who are professionals. However, professional pupils complete a lowest number of quizzes in a week.
 
 
-```{r, echo=FALSE}
+```{r, figs8, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs8}Bar graphs illustrating student engagement measured using number of quizes and number of activites completed."}
 df = measureEngagement(typeOfUser(avgNumberOfQuizCompletedWeekly(
 total_quizes), "region"))
 df_1 = measureEngagement(typeOfUser(avgNumberOfActivtiesCompletedWeekly(
@@ -192,33 +208,42 @@ grid.arrange(p)
 
 Pupils from countries in Oceania complete the highest number of activities a week. The lowest number of activities completed are pupils from countries in Africa. Pupils with the lowest number of quizzes completed are from countries in Europe. Pupils with the highest number of quizzes are from countries in Africa
 
-# Conclusions and Reasioning
+# 2.4 Conclusions and Reasioning
+
 The people who had a better higher performance included:
+
 - Pupils aged 56-65 and 65 tend to perform better. 
 - Those who are retired and or working full time perform better
 - Full time students perform the lowest
 - Pupils with university degree perform better
 - Pupils from oceania
 
-Generally it was observed that a pupil will complete more quizzes per week have a lower performance. This is because pupil attempts in multiple combination until an answer is correct. This suggest that they may have not gained the right understanding. Additionally, the it's observed that the number of activities completed and performance has less of a negative relationship than number of quizzes completed per week and performance. Perhaps this is indication why some demographics (>65) had a higher performing (as they took much less attempts to answer questions) and activities. Activities take more effort than quizzes, as involves self research to find an answer. That indicates those who are more engaged take more activities, thus gaining a better understand and a higher performance in quizzes (less reattempts). 
+Generally it was observed that a pupil will complete more quizzes per week have a lower performance. This is because pupil with a higher number of quizzes tend to make attempts in multiple combination until an answer is correct. This suggest that they may have not gained the right understanding and are most lickley guessing. Additionally, it's observed that the number of activities completed and performance has less of a negative relationship than number of quizzes completed per week and performance. Perhaps this is indication why some demographics (>65) had a higher performing (as they took much less attempts to answer questions) and activities. Activities take more effort than quizzes, as involves self research to find an answer. That indicates those who are more engaged take more activities, thus gaining a better understand and a higher performance in quizzes (less reattempts). 
 
 Full time students had a lower performance and completed more quizzes than any pupils with different employment status. This holds true for pupils with the age range 18-25. Retired people tend to perform better among est those with different employment status. The data also suggest that pupils >65 perform the best. Therefore, it is reasonable to suggest that full time students tends to be those 18-25 are less engaged because as they are completing other studies. 
 
 
-```{r, echo=FALSE}
+```{r, figs9, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs9}Scatter graphs illustrating the realationships between the performance and the average number of quizes completed and the realationship between the performance and the average number of activities completed weekly"}
 p = ggplot(na.omit(performanceVsDf(avgNumberOfActivtiesCompletedWeekly(total_activties))), aes(x=performance, y=mean_num_activties_weekly, )) + geom_point(alpha=0.1) + stat_smooth(method=lm)
 p_1 = ggplot(na.omit(performanceVsDf(avgNumberOfQuizCompletedWeekly(total_quizes))), aes(x=performance, y=mean_num_quizes_weekly)) + geom_point(alpha=0.1) + ylim(0,50) + stat_smooth(method=lm)
 grid.arrange(p, p_1, ncol = 2, nrow = 1)
 ```
 
-# Models
+# 2.5 Models
 
 We are going to be looking at implementing two models 
 1. Predicts the number performance by each student
 2. Uses data to estimate the performance of a student
-3. Identify any at risk Students
 
-```{r, echo=FALSE}
+## Model 1:
+
+This model take in two mian datasets - demographic data, including the gender, age, highest level of education, employement status, region and employement area. Additionally makes use of the data specifiying the number of engagements. This is measured by the number of quzies and the number of activties completed by a pupils week by week.
+
+The demographic and engagement data is put into a linear regression model. The output is the prediction of a pupil performance. 
+
+This model can be used to provide more insight on how a student is performing, and identify any students not gaining the correct understanding. This information can then be used to decide on the suitable intervation for a pupil.
+
+```{r, figs10, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs10}Model 1: predicting the performance of a pupils using demograp"}
 set.seed(777)
 sample_size = floor(0.8*nrow(total_enrollements_model_data))
 picked = sample(1:nrow(total_enrollements_model_data),size = sample_size)
@@ -227,19 +252,23 @@ test_set  = total_enrollements_model_data[-picked,]
 lsq_fit = lm(performance~., data = train_set)
 summary = summary(lsq_fit)
 summary$coefficients
-train_yhat = predict(lsq_fit, train_set[-7])
-test_yhat = predict(lsq_fit, test_set[-7])
+train_yhat = predict(lsq_fit, train_set[-9])
+test_yhat = predict(lsq_fit, test_set[-9])
 test_error = mean((test_set$performance - test_yhat)^2)
 train_error = mean((train_set$performance - train_yhat)^2)
 plot(lsq_fit, which = 1)
 
 test_error 
-test_error
+train_error
 ```
 
-There is only 7 observation for all runs. Therefore had to predict more data to come., and with a (possible) low signal-to-noise ratio it will be hard to extract any possible trend, persistence, lagged errors etc. Also it is impossible to capture seasonality related to cycles with higher periods (like annual seasonality), when you only have such a short observed series.
+## Model 2
 
-```{r, echo=FALSE}
+The idea of this model is a predictive analytic model that makes use of the average performance of each a specfic demographic from each run of the module. The example on figure 12, is predicting average performance the next run (8) by different regions. This predictive model can be also used for other demographics (age, gender etc). 
+
+This model can only predict 1 future run of the module. This is because there is only 7 observation for all runs. Therefore to predict more, more data (more runs of the course) would need to done. There is a low signial-to-noise ratio, therefore it was difficult for the predictive model to extract any possible trend, presistence, lagged errors etc. 
+
+```{r, figs11, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs11}Model 2: Forcasting performance"}
 forecast_oceania = forecast(arima((avgPerformance("region") %>% filter(type == "Oceania"))[["mean"]]), 2)
 df = data.frame(runs = c("run 8"), performance = c(forecast_oceania$mean[1]), region = "Oceania")
 
@@ -261,22 +290,6 @@ ggplot(df, aes(x=region, y=performance, col=region, fill=region)) + geom_point()
 
 
 
-## R Markdown
+# Evaluatation
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
