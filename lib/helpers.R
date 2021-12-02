@@ -93,54 +93,6 @@ asDoubleFactor = function(x) {
   as.numeric(as.factor(x))
   }
 
-translateVideoStats = function(df, col_num) {
-  df_1 = data.frame()
-  for (i in seq(1:nrow(df))) {
-    row = df[i,]
-    row$europe = as.integer((row$europe_views_percentage / 100) * row[col_num])
-    row$oceania = as.integer((row$oceania_views_percentage / 100) * row[col_num])
-    row$asia = as.integer((row$asia_views_percentage / 100) * row[col_num])
-    row$africa = as.integer((row$africa_views_percentage / 100) * row[col_num])
-    row$north_america  = as.integer((row$north_america_views_percentage / 100) * row[col_num])
-    row$south_america  = as.integer((row$south_america_views_percentage / 100) * row[col_num])
-      
-    df_1 = rbind(df_1, row)
-  }
-  return(df_1)
-}
-
-totalVidStats = function(list) {
-  df = data.frame()
-  for (i in seq(1:length(list))) {
-    current_df = list[[i]] 
-    current_df$group = i
-    df = bind_rows(df, current_df)
-  }
-  
-  df = df %>% group_by(step_position) %>% summarise(total_downloads = mean(total_downloads), total_views = mean(total_views), 
-        total_caption_view = mean(total_caption_views), total_transcript_views = mean(total_transcript_views), 
-        mobile_device_percentage = mean(mobile_device_percentage), desktop_device_percentage = mean(desktop_device_percentage),
-        tablet_device_percentage = mean(tablet_device_percentage),
-        asia = mean(asia), africa= mean(africa),
-        europe = mean(europe), north_america = mean(north_america), 
-        south_america = mean(south_america), oceania= mean(oceania))
-  return(df)
-}
-
-panel.lm <- function (x, y,  pch = par("pch"), col.lm = "red",  ...) {   
-  ymin <- min(y)
-  ymax <- max(y)
-  xmin <- min(x)
-  xmax <- max(x)
-  ylim <- c(min(ymin,xmin),max(ymax,xmax))
-  xlim <- ylim
-  points(x, y, pch = pch,ylim = ylim, xlim= xlim,...)
-  ok <- is.finite(x) & is.finite(y)
-  if (any(ok)) 
-    abline(lm(y[ok]~ x[ok]), 
-           col = col.lm, ...)
-}
-
 avgPerformance = function(type) {
   avg_performance_1 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.1_question.response), type), type)
   avg_performance_2 = caculateAveragePerformance(typeOfUser(measurePerformance(cyber.security.2_question.response), type), type)
