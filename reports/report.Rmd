@@ -1,6 +1,6 @@
 ---
 title: "Learning analysis: Exploring the interactions and demographics between different demographics"
-author: "Adanna V. Obibuaku"
+author: "Adanna V. Obibuaku (180251870)"
 date: "21/11/2021"
 output: 
   pdf_document:
@@ -8,8 +8,6 @@ output:
 fontfamily: mathpazo
 fontsize: 11pt
 geometry: margin=1in
-header-includes:
-   - \linespread{1.05}
 ---
 
 ```{r setup, include=FALSE}
@@ -274,12 +272,11 @@ The demographic and engagement data is put into a linear regression model. The o
 
 The code below demonstrates the coding steps that were taken to prepare our data for the model. 
 
-```{r, eval = FALSE}
-
+```{r}
 # Select rows we need
 total_enrollements_model_data = total_enrollments[-c(2:6,13,8)]
-total_enrollements_model_data = total_enrollements_model_data 
-%>% filter_all(all_vars(.!="Unknown")) # remove all rows that contain "unknown"
+total_enrollements_model_data = total_enrollements_model_data %>% 
+  filter_all(all_vars(.!="Unknown")) # remove all rows that contain "unknown"
 
 # Remove NA values
 total_enrollements_model_data = 
@@ -325,22 +322,12 @@ total_enrollements_model_data = na.omit(total_enrollements_model_data)
 This illustrates the model coefficients including the train and test error.
 
 ```{r, figs10, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs10}Model 1: illustrating where the residuals lies on the fitted line."}
-set.seed(777)
-sample_size = floor(0.8*nrow(total_enrollements_model_data))
-picked = sample(1:nrow(total_enrollements_model_data),size = sample_size)
-train_set = total_enrollements_model_data[picked,]
-test_set  = total_enrollements_model_data[-picked,]
-lsq_fit = lm(performance~., data = train_set)
-summary = summary(lsq_fit)
-print("Coefficients of the exploratory variables in the model")
-summary$coefficients
-train_yhat = predict(lsq_fit, train_set[-9])
-test_yhat = predict(lsq_fit, test_set[-9])
-test_error = mean((test_set$performance - test_yhat)^2)
-train_error = mean((train_set$performance - train_yhat)^2)
-kable(data.frame(Error = c("Test Error", "Train Error"), Results = c(test_error, train_error)))
-
-plot(lsq_fit, which = 1)
+source("diagnostics/linear-regression-model-performance.R")
+l = linearModelPerformance(total_enrollements_model_data)
+print("The coefficients of the model")
+print(l$coefficients)
+kable(data.frame(Error = c("Test Error", "Train Error"), Results = c(l$test_error, l$train_error)))
+plot(l$lsq_fit, which = 1)
 ```
 
 The test error and train error are small. This shows the model produces an accurate estimation of the performance of a pupil. This is further shown on figure 10, as all our residuals (the error measured by taking away the actual results from the expected result in the test data) is small and relatively close to the fitted line. This model can be used to provide more insight on how a pupil is performing, and identify any students not gaining the correct understanding. This information can then be used to decide on the suitable intervention for a pupil which will further help enhance the Newcastle online learning course. 
@@ -363,23 +350,9 @@ The predictive model can be used to find out more on other demographics (age, ge
 Figure 11, shows the results of each model forecasting the results of pupils based on region. Each model can only predict 1 future run of the module. This is because there is only 7 observation for all runs. Therefore to predict more, more data (more runs of the course) would need to done. There is a low signal-to-noise ratio, therefore it was difficult for the predictive model to extract any possible trend, persistence, lagged errors etc. 
 
 ```{r, figs11, echo=FALSE, fig.width=7,fig.height=6,fig.cap="\\label{fig:figs11}Model 2: Forcasting performance"}
-forecast_oceania = forecast(arima((avgPerformance("region") %>% filter(type == "Oceania"))[["mean"]]), 2)
-df = data.frame(runs = c("run 8"), performance = c(forecast_oceania$mean[1]), region = "Oceania")
-
-forecast_europe = forecast(arima((avgPerformance("region") %>% filter(type == "Europe"))[["mean"]]), 2)
-df_1 = data.frame(runs = c("run 8"), performance = c(forecast_europe$mean[1]), region = "Europe")
-
-forecast_americas = forecast(arima((avgPerformance("region") %>% filter(type == "Americas"))[["mean"]]), 2)
-df_2 = data.frame(runs = c("run 8"), performance = c(forecast_americas$mean[1]), region = "Americas")
-
-forecast_asia = forecast(arima((avgPerformance("region") %>% filter(type == "Asia"))[["mean"]]), 2)
-df_3 = data.frame(runs = c("run 8"), performance = c(forecast_asia$mean[1]), region = "Asia")
-
-forecast_africa = forecast(arima((avgPerformance("region") %>% filter(type == "Africa"))[["mean"]]), 2)
-df_4 = data.frame(runs = c("run 8"), performance =  c(forecast_africa$mean[1]), region = "Africa")
-
-df = rbind(df, df_1, df_2, df_3, df_4)
-ggplot(df, aes(x=region, y=performance, col=region, fill=region)) + geom_point() + geom_line(group = 1)
+source("diagnostics/forecast-model.R")
+df = forecast(avgPerformance("region"), c("Oceania", "Europe", "Americas", "Asia", "Africa"))
+ggplot(df, aes(x=type, y=performance, col=type, fill=type)) + geom_point() + geom_line(group = 1)
 ```
 
 The purpose of this model, is to allow Newcastle university identify pupils which may have a low performance in the future. This allows enough time to provide any suitable intervention to prevent the low performance. This predictive model could have performed better with more data added. More data added means the model can predict forecast up 2 more years and provide better accuracy.
@@ -408,5 +381,7 @@ Additional problems with this investigation is the way performance is measured. 
 Another step to explore is identifying reasons of performance for a particular student, and looking at methods to retain pupils between different demographics. A trial could be collected measure different structure methods applied to the run of the online content. For example introducing more videos, more engagement with the organisation admin, more content, more weeks less content. More weeks with less content and verifying which had more engagement and performance across different demographics. This would allow further identification what type of elements affect different pupils are more suitable to different pupils.  
 
 # 3.1 Deployment
+
+This project is deployement is achieved using projectTemplate, as much of the code is reproducable. The functions within the helper module is used to make to apply the same data transformation which is used within the analysis. 
 
 
