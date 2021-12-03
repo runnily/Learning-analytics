@@ -5,7 +5,7 @@ Welcome to ProjectTemplate!
 This files species how you should use ProjectTemplate.
 
 Before we begin please by start by setting  your setwd() into the directory where the 
-"setup.r"" is located. Once done please run the stepup.r file to download all 
+"setup.r" is located. Once done please run the stepup.r libraries to download all 
 the relevant files and begin the project.
 
   stepup.r
